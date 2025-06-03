@@ -1,6 +1,11 @@
 Change Log
 ===========
 
+0.2.62
+------
+Features:
+- Add optional ``span`` parameter to ``Ticker.history`` and ``download`` for automatically fetching sequential chunks when requesting intraday periods beyond Yahoo's limit
+
 0.2.61
 ------
 Fix ALL type hints in websocket #2493

@@ -4,6 +4,8 @@ dat = yf.Ticker("MSFT")
 
 # get historical market data
 dat.history(period='1mo')
+# request multi-week 1m data
+dat.history(period='14d', interval='1m', span=True)
 
 # options
 dat.option_chain(dat.options[0]).calls

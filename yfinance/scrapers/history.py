@@ -34,7 +34,7 @@ class PriceHistory:
                 start=None, end=None, prepost=False, actions=True,
                 auto_adjust=True, back_adjust=False, repair=False, keepna=False,
                 proxy=_SENTINEL_, rounding=False, timeout=10,
-                raise_errors=False) -> pd.DataFrame:
+                raise_errors=False, span=False) -> pd.DataFrame:
         """
         :Parameters:
             period : str
@@ -73,12 +73,22 @@ class PriceHistory:
                 Default is 10 seconds.
             raise_errors: bool
                 If True, then raise errors as Exceptions instead of logging.
+            span: bool
+                If True, automatically fetch multiple sequential ranges when the
+                requested period exceeds Yahoo's per-request limit.
         """
         logger = utils.get_yf_logger()
 
         if proxy is not _SENTINEL_:
             utils.print_once("YF deprecation warning: set proxy via new config function: yf.set_config(proxy=proxy)")
             self._data._set_proxy(proxy)
+
+        if span:
+            return self._history_span(period=period, interval=interval,
+                                     start=start, end=end, prepost=prepost, actions=actions,
+                                     auto_adjust=auto_adjust, back_adjust=back_adjust, repair=repair,
+                                     keepna=keepna, rounding=rounding, timeout=timeout,
+                                     raise_errors=raise_errors)
 
         interval_user = interval
         period_user = period
@@ -469,6 +479,82 @@ class PriceHistory:
         if self._reconstruct_start_interval is not None and self._reconstruct_start_interval == interval:
             self._reconstruct_start_interval = None
         return df
+
+    def _history_span(self, period="1mo", interval="1d",
+                      start=None, end=None, prepost=False, actions=True,
+                      auto_adjust=True, back_adjust=False, repair=False, keepna=False,
+                      rounding=False, timeout=10, raise_errors=False) -> pd.DataFrame:
+        """Fetch data in multiple sequential requests when range exceeds Yahoo limit."""
+
+        limits = {
+            "1m": _datetime.timedelta(days=7),
+            "2m": _datetime.timedelta(days=60),
+            "5m": _datetime.timedelta(days=60),
+            "15m": _datetime.timedelta(days=60),
+            "30m": _datetime.timedelta(days=60),
+            "90m": _datetime.timedelta(days=60),
+            "60m": _datetime.timedelta(days=730),
+            "1h": _datetime.timedelta(days=730),
+        }
+
+        if interval not in limits:
+            return self.history(period=period, interval=interval, start=start, end=end,
+                                prepost=prepost, actions=actions, auto_adjust=auto_adjust,
+                                back_adjust=back_adjust, repair=repair, keepna=keepna,
+                                rounding=rounding, timeout=timeout, raise_errors=raise_errors,
+                                span=False)
+
+        tz = self.tz or "UTC"
+
+        end_dt = pd.Timestamp.utcnow().tz_convert(tz) if end is None else pd.Timestamp(end)
+        if end_dt.tzinfo is None:
+            end_dt = end_dt.tz_localize(tz)
+
+        if start is None:
+            if period is None or str(period).lower() == "max":
+                return self.history(period=period, interval=interval, start=start, end=end,
+                                    prepost=prepost, actions=actions, auto_adjust=auto_adjust,
+                                    back_adjust=back_adjust, repair=repair, keepna=keepna,
+                                    rounding=rounding, timeout=timeout, raise_errors=raise_errors,
+                                    span=False)
+            start_dt = end_dt - utils._interval_to_timedelta(period)
+        else:
+            start_dt = pd.Timestamp(start)
+            if start_dt.tzinfo is None:
+                start_dt = start_dt.tz_localize(tz)
+
+        limit_td = limits[interval]
+
+        if end_dt - start_dt <= limit_td:
+            return self.history(start=start_dt, end=end_dt, interval=interval,
+                                prepost=prepost, actions=actions, auto_adjust=auto_adjust,
+                                back_adjust=back_adjust, repair=repair, keepna=keepna,
+                                rounding=rounding, timeout=timeout, raise_errors=raise_errors,
+                                span=False)
+
+        dfs = []
+        current = start_dt
+        while current < end_dt:
+            seg_end = min(current + limit_td, end_dt)
+            df_seg = self.history(start=current, end=seg_end, interval=interval,
+                                  prepost=prepost, actions=actions, auto_adjust=auto_adjust,
+                                  back_adjust=back_adjust, repair=repair, keepna=True,
+                                  rounding=rounding, timeout=timeout, raise_errors=raise_errors,
+                                  span=False)
+            if not df_seg.empty:
+                dfs.append(df_seg)
+            current = seg_end
+
+        if not dfs:
+            return utils.empty_df()
+
+        df_all = pd.concat(dfs).sort_index()
+        if not keepna:
+            data_colnames = _PRICE_COLNAMES_ + ['Volume', 'Dividends', 'Stock Splits', 'Capital Gains']
+            data_colnames = [c for c in data_colnames if c in df_all.columns]
+            mask_nan_or_zero = (df_all[data_colnames].isna() | (df_all[data_colnames] == 0)).all(axis=1)
+            df_all = df_all.drop(mask_nan_or_zero.index[mask_nan_or_zero])
+        return df_all
 
     def _get_history_cache(self, period="max", interval="1d") -> pd.DataFrame:
         cache_key = (interval, period)

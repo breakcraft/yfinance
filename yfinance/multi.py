@@ -40,7 +40,7 @@ def download(tickers, start=None, end=None, actions=False, threads=True,
              ignore_tz=None, group_by='column', auto_adjust=None, back_adjust=False,
              repair=False, keepna=False, progress=True, period="max", interval="1d",
              prepost=False, proxy=_SENTINEL_, rounding=False, timeout=10, session=None,
-             multi_level_index=True) -> Union[_pd.DataFrame, None]:
+             multi_level_index=True, span=False) -> Union[_pd.DataFrame, None]:
     """
     Download yahoo tickers
     :Parameters:
@@ -89,6 +89,8 @@ def download(tickers, start=None, end=None, actions=False, threads=True,
             Optional. Pass your own session object to be used for all requests
         multi_level_index: bool
             Optional. Always return a MultiIndex DataFrame? Default is True
+        span: bool
+            If True, fetch multiple sequential ranges when period exceeds Yahoo's per-request limit.
     """
     logger = utils.get_yf_logger()
     session = session or requests.Session(impersonate="chrome")
@@ -161,7 +163,7 @@ def download(tickers, start=None, end=None, actions=False, threads=True,
                                    actions=actions, auto_adjust=auto_adjust,
                                    back_adjust=back_adjust, repair=repair, keepna=keepna,
                                    progress=(progress and i > 0),
-                                   rounding=rounding, timeout=timeout)
+                                   rounding=rounding, timeout=timeout, span=span)
         while len(shared._DFS) < len(tickers):
             _time.sleep(0.01)
     # download synchronously
@@ -171,7 +173,7 @@ def download(tickers, start=None, end=None, actions=False, threads=True,
                                  start=start, end=end, prepost=prepost,
                                  actions=actions, auto_adjust=auto_adjust,
                                  back_adjust=back_adjust, repair=repair, keepna=keepna,
-                                 rounding=rounding, timeout=timeout)
+                                 rounding=rounding, timeout=timeout, span=span)
             if progress:
                 shared._PROGRESS_BAR.animate()
 
@@ -262,10 +264,10 @@ def _download_one_threaded(ticker, start=None, end=None,
                            auto_adjust=False, back_adjust=False, repair=False,
                            actions=False, progress=True, period="max",
                            interval="1d", prepost=False,
-                           keepna=False, rounding=False, timeout=10):
+                           keepna=False, rounding=False, timeout=10, span=False):
     _download_one(ticker, start, end, auto_adjust, back_adjust, repair,
                          actions, period, interval, prepost, rounding,
-                         keepna, timeout)
+                         keepna, timeout, span)
     if progress:
         shared._PROGRESS_BAR.animate()
 
@@ -274,7 +276,7 @@ def _download_one(ticker, start=None, end=None,
                   auto_adjust=False, back_adjust=False, repair=False,
                   actions=False, period="max", interval="1d",
                   prepost=False, rounding=False,
-                  keepna=False, timeout=10):
+                  keepna=False, timeout=10, span=False):
     data = None
     try:
         data = Ticker(ticker).history(
@@ -283,7 +285,7 @@ def _download_one(ticker, start=None, end=None,
                 actions=actions, auto_adjust=auto_adjust,
                 back_adjust=back_adjust, repair=repair,
                 rounding=rounding, keepna=keepna, timeout=timeout,
-                raise_errors=True
+                raise_errors=True, span=span
         )
     except Exception as e:
         # glob try/except needed as current thead implementation breaks if exception is raised.

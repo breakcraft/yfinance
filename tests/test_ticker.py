@@ -315,6 +315,11 @@ class TestTickerHistory(unittest.TestCase):
         for url in actual_urls_called:
             self.assertTrue(url in expected_urls, f"Unexpected URL called: {url}")
 
+    def test_history_span(self):
+        df = self.ticker.history(period="14d", interval="1m", span=True)
+        self.assertIsInstance(df, pd.DataFrame)
+        self.assertFalse(df.empty)
+
     def test_dividends(self):
         data = self.ticker.dividends
         self.assertIsInstance(data, pd.Series, "data has wrong type")
