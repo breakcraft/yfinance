@@ -540,6 +540,8 @@ document.write(`
 
 <span class="c1"># get historical market data</span>
 <span class="n">dat</span><span class="o">.</span><span class="n">history</span><span class="p">(</span><span class="n">period</span><span class="o">=</span><span class="s1">&#39;1mo&#39;</span><span class="p">)</span>
+<span class="c1"># request multi-week 1m data</span>
+<span class="n">dat</span><span class="o">.</span><span class="n">history</span><span class="p">(</span><span class="n">period</span><span class="o">=</span><span class="s1">&#39;14d&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="s1">&#39;1m&#39;</span><span class="p">,</span> <span class="n">span</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># options</span>
 <span class="n">dat</span><span class="o">.</span><span class="n">option_chain</span><span class="p">(</span><span class="n">dat</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">calls</span>
