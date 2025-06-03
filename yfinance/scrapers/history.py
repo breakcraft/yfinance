@@ -245,8 +245,8 @@ class PriceHistory:
         elif "chart" not in data or data["chart"]["result"] is None or not data["chart"]["result"] or not data["chart"]["result"][0]["indicators"]["quote"][0]:
             _exception = YFPricesMissingError(self.ticker, _price_data_debug)
             fail = True
-        elif period and period not in self._history_metadata['validRanges'] and not utils.is_valid_period_format(period):
-            # User provided a bad period
+        elif period and not utils.is_valid_period_format(period):
+            # User provided a badly formatted period
             _exception = YFInvalidPeriodError(self.ticker, period, ", ".join(self._history_metadata['validRanges']))
             fail = True
 

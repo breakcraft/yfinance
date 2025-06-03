@@ -5,6 +5,7 @@ Change Log
 ------
 Features:
 - Add optional ``span`` parameter to ``Ticker.history`` and ``download`` for automatically fetching sequential chunks when requesting intraday periods beyond Yahoo's limit
+Add automatic retries on HTTP 429 responses and loosen period validation.
 
 0.2.61
 ------

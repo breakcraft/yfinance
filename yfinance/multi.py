@@ -25,6 +25,8 @@ import logging
 import time as _time
 import traceback
 from typing import Union
+import asyncio
+import functools
 
 import multitasking as _multitasking
 import pandas as _pd
@@ -234,6 +236,46 @@ def download(tickers, start=None, end=None, actions=False, threads=True,
         data = data.droplevel(0 if group_by == 'ticker' else 1, axis=1).rename_axis(None, axis=1)
 
     return data
+
+
+@utils.log_indent_decorator
+async def async_download(tickers, start=None, end=None, actions=False, threads=True,
+                         ignore_tz=None, group_by='column', auto_adjust=None, back_adjust=False,
+                         repair=False, keepna=False, progress=True, period="max", interval="1d",
+                         prepost=False, proxy=_SENTINEL_, rounding=False, timeout=10, session=None,
+                         multi_level_index=True) -> Union[_pd.DataFrame, None]:
+    """Asynchronous version of :func:`download`.
+
+    Parameters mirror :func:`download`. Internally the synchronous
+    :func:`download` function is executed in a background thread so the
+    event loop is not blocked.
+    """
+
+    loop = asyncio.get_running_loop()
+    func = functools.partial(
+        download,
+        tickers,
+        start=start,
+        end=end,
+        actions=actions,
+        threads=threads,
+        ignore_tz=ignore_tz,
+        group_by=group_by,
+        auto_adjust=auto_adjust,
+        back_adjust=back_adjust,
+        repair=repair,
+        keepna=keepna,
+        progress=progress,
+        period=period,
+        interval=interval,
+        prepost=prepost,
+        proxy=proxy,
+        rounding=rounding,
+        timeout=timeout,
+        session=session,
+        multi_level_index=multi_level_index,
+    )
+    return await loop.run_in_executor(None, func)
 
 
 def _realign_dfs():

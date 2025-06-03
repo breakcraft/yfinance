@@ -24,7 +24,7 @@ from .search import Search
 from .lookup import Lookup
 from .ticker import Ticker
 from .tickers import Tickers
-from .multi import download
+from .multi import download, async_download
 from .live import WebSocket, AsyncWebSocket
 from .utils import enable_debug_mode
 from .cache import set_tz_cache_location
@@ -42,7 +42,7 @@ __author__ = "Ran Aroussi"
 import warnings
 warnings.filterwarnings('default', category=DeprecationWarning, module='^yfinance')
 
-__all__ = ['download', 'Market', 'Search', 'Lookup', 'Ticker', 'Tickers', 'enable_debug_mode', 'set_tz_cache_location', 'Sector', 'Industry', 'WebSocket', 'AsyncWebSocket']
+__all__ = ['download', 'async_download', 'Market', 'Search', 'Lookup', 'Ticker', 'Tickers', 'enable_debug_mode', 'set_tz_cache_location', 'Sector', 'Industry', 'WebSocket', 'AsyncWebSocket']
 # screener stuff:
 __all__ += ['EquityQuery', 'FundQuery', 'screen', 'PREDEFINED_SCREENER_QUERIES']
 
