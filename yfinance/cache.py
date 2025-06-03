@@ -5,6 +5,7 @@ import platformdirs as _ad
 import atexit as _atexit
 import datetime as _datetime
 import pickle as _pkl
+import json as _json
 
 from .utils import get_yf_logger
 
@@ -313,7 +314,7 @@ class _CookieSchema(_peewee.Model):
     fetch_date = ISODateTimeField(default=_datetime.datetime.now)
     
     # Which cookie type depends on strategy
-    cookie_bytes = _peewee.BlobField()
+    cookie_json = _peewee.TextField()
 
     class Meta:
         database = Cookie_db_proxy
@@ -358,7 +359,10 @@ class _CookieCache:
                 _CookieSchema._meta.without_rowid = False
                 db.create_tables([_CookieSchema])
             else:
-                raise
+                db.close()
+                _os.remove(db.database)
+                db.connect()
+                db.create_tables([_CookieSchema])
         self.initialised = 1  # success
 
     def lookup(self, strategy):
@@ -373,7 +377,16 @@ class _CookieCache:
 
         try:
             data =  _CookieSchema.get(_CookieSchema.strategy == strategy)
-            cookie = _pkl.loads(data.cookie_bytes)
+            try:
+                cookie = _json.loads(data.cookie_json)
+            except Exception:
+                # Migrate old pickle entry if encountered
+                try:
+                    cookie = _pkl.loads(data.cookie_json)
+                    _CookieSchema.update(cookie_json=_json.dumps(cookie)).where(
+                        _CookieSchema.strategy == strategy).execute()
+                except Exception:
+                    return None
             return {'cookie':cookie, 'age':_datetime.datetime.now()-data.fetch_date}
         except _CookieSchema.DoesNotExist:
             return None
@@ -397,8 +410,8 @@ class _CookieCache:
             if cookie is None:
                 return
             with db.atomic():
-                cookie_pkl = _pkl.dumps(cookie, _pkl.HIGHEST_PROTOCOL)
-                _CookieSchema.insert(strategy=strategy, cookie_bytes=cookie_pkl).execute()
+                cookie_json = _json.dumps(cookie)
+                _CookieSchema.insert(strategy=strategy, cookie_json=cookie_json).execute()
         except _peewee.IntegrityError:
             raise
             # # Integrity error means the strategy already exists. Try updating the strategy.

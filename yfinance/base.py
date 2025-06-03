@@ -23,6 +23,7 @@ from __future__ import print_function
 
 import json as _json
 import warnings
+import datetime as _datetime
 from typing import Optional, Union
 from urllib.parse import quote as urlencode
 
@@ -93,7 +94,50 @@ class TickerBase:
 
     @utils.log_indent_decorator
     def history(self, *args, **kwargs) -> pd.DataFrame:
-        return self._lazy_load_price_history().history(*args, **kwargs)
+        span = kwargs.pop("span", False)
+        if not span:
+            return self._lazy_load_price_history().history(*args, **kwargs)
+
+        interval = kwargs.get("interval", "1d")
+        start = kwargs.get("start")
+        end = kwargs.get("end")
+        if start is None or end is None:
+            return self._lazy_load_price_history().history(*args, **kwargs)
+
+        tz = self._get_ticker_tz(timeout=10)
+        start_dt = utils._parse_user_dt(start, tz)
+        end_dt = utils._parse_user_dt(end, tz)
+
+        limits = {
+            "1m": 7,
+            "2m": 60,
+            "5m": 60,
+            "15m": 60,
+            "30m": 60,
+            "60m": 730,
+            "90m": 60,
+            "1h": 730,
+        }
+
+        if interval not in limits:
+            return self._lazy_load_price_history().history(*args, **kwargs)
+
+        delta = _datetime.timedelta(days=limits[interval])
+        dfs = []
+        cur_start = start_dt
+        while cur_start < end_dt:
+            cur_end = min(end_dt, cur_start + delta)
+            kwargs["start"] = cur_start
+            kwargs["end"] = cur_end
+            df = self._lazy_load_price_history().history(*args, **kwargs)
+            dfs.append(df)
+            cur_start = cur_end
+        if len(dfs) == 0:
+            return utils.empty_df()
+        result = pd.concat(dfs)
+        result = result[~result.index.duplicated(keep="first")]
+        result.sort_index(inplace=True)
+        return result
 
     # ------------------------
 

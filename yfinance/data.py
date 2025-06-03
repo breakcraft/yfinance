@@ -154,8 +154,13 @@ class YfData(metaclass=SingletonMeta):
         if len(yh_domains) == 0:
             return False
         yh_domain = yh_domains[0]
-        yh_cookie = {yh_domain: cookies[yh_domain]}
-        cache.get_cookie_cache().store('curlCffi', yh_cookie)
+        a3 = cookies[yh_domain]['/']['A3']
+        cookie_data = {
+            'domain': yh_domain,
+            'value': a3.value,
+            'expires': a3.expires
+        }
+        cache.get_cookie_cache().store('curlCffi', cookie_data)
         return True
 
     @utils.log_indent_decorator
@@ -165,10 +170,13 @@ class YfData(metaclass=SingletonMeta):
         cookie_dict = cache.get_cookie_cache().lookup('curlCffi')
         if cookie_dict is None or len(cookie_dict) == 0:
             return False
-        cookies = cookie_dict['cookie']
-        domain = list(cookies.keys())[0]
-        cookie = cookies[domain]['/']['A3']
-        expiry_ts = cookie.expires
+        data = cookie_dict['cookie']
+        domain = data.get('domain')
+        value = data.get('value')
+        expiry_ts = data.get('expires')
+        if domain is None or value is None or expiry_ts is None:
+            return False
+        cookie = requests.cookies.create_cookie(name='A3', value=value, domain=domain, path='/', expires=expiry_ts)
         if expiry_ts > 2e9:
             # convert ms to s
             expiry_ts //= 1e3
@@ -177,7 +185,7 @@ class YfData(metaclass=SingletonMeta):
         if expired:
             utils.get_yf_logger().debug('cached cookie expired')
             return False
-        self._session.cookies.jar._cookies.update(cookies)
+        self._session.cookies.set_cookie(cookie)
         self._cookie = cookie
         return True
 

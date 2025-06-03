@@ -24,7 +24,7 @@ from .search import Search
 from .lookup import Lookup
 from .ticker import Ticker
 from .tickers import Tickers
-from .multi import download
+from .multi import download, async_download
 from .live import WebSocket, AsyncWebSocket
 from .utils import enable_debug_mode
 from .cache import set_tz_cache_location

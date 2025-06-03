@@ -34,7 +34,7 @@ class PriceHistory:
                 start=None, end=None, prepost=False, actions=True,
                 auto_adjust=True, back_adjust=False, repair=False, keepna=False,
                 proxy=_SENTINEL_, rounding=False, timeout=10,
-                raise_errors=False) -> pd.DataFrame:
+                raise_errors=False, span=False) -> pd.DataFrame:
         """
         :Parameters:
             period : str
@@ -73,6 +73,9 @@ class PriceHistory:
                 Default is 10 seconds.
             raise_errors: bool
                 If True, then raise errors as Exceptions instead of logging.
+            span: bool
+                If True, automatically paginate requests when intraday range
+                exceeds Yahoo limits. Default False.
         """
         logger = utils.get_yf_logger()
 

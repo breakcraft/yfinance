@@ -1,6 +1,7 @@
 import asyncio
 import base64
 import json
+import time
 from typing import List, Optional, Callable, Union
 
 from websockets.sync.client import connect as sync_connect
@@ -52,6 +53,8 @@ class AsyncWebSocket(BaseWebSocket):
         super().__init__(url, verbose)
         self._message_handler = None  # Callable to handle messages
         self._heartbeat_task = None  # Task to send heartbeat subscribe
+        self._reconnect_delay = 3
+        self._reconnect_delay_max = 60
 
     async def _connect(self):
         try:
@@ -60,6 +63,7 @@ class AsyncWebSocket(BaseWebSocket):
                 self.logger.info("Connected to WebSocket.")
                 if self.verbose:
                     print("Connected to WebSocket.")
+                self._reconnect_delay = 3
         except Exception as e:
             self.logger.error("Failed to connect to WebSocket: %s", e, exc_info=True)
             if self.verbose:
@@ -184,7 +188,8 @@ class AsyncWebSocket(BaseWebSocket):
                 self.logger.info("Attempting to reconnect...")
                 if self.verbose:
                     print("Attempting to reconnect...")
-                await asyncio.sleep(3)  # backoff
+                await asyncio.sleep(self._reconnect_delay)
+                self._reconnect_delay = min(self._reconnect_delay * 2, self._reconnect_delay_max)
                 await self._connect()
 
     async def close(self):
@@ -220,6 +225,8 @@ class WebSocket(BaseWebSocket):
             verbose (bool): Flag to enable or disable print statements. Defaults to True.
         """
         super().__init__(url, verbose)
+        self._reconnect_delay = 3
+        self._reconnect_delay_max = 60
 
     def _connect(self):
         try:
@@ -228,6 +235,7 @@ class WebSocket(BaseWebSocket):
                 self.logger.info("Connected to WebSocket.")
                 if self.verbose:
                     print("Connected to WebSocket.")
+                self._reconnect_delay = 3
         except Exception as e:
             self.logger.error("Failed to connect to WebSocket: %s", e, exc_info=True)
             if self.verbose:
@@ -317,7 +325,12 @@ class WebSocket(BaseWebSocket):
                 self.logger.error("Error while listening to messages: %s", e, exc_info=True)
                 if self.verbose:
                     print("Error while listening to messages: %s", e)
-                break
+                self.logger.info("Attempting to reconnect...")
+                if self.verbose:
+                    print("Attempting to reconnect...")
+                time.sleep(self._reconnect_delay)
+                self._reconnect_delay = min(self._reconnect_delay * 2, self._reconnect_delay_max)
+                self._connect()
 
     def close(self):
         """Close the WebSocket connection."""
