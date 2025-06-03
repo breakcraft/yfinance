@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>yfinance.Ticker.growth_estimates &#8212; yfinance</title>
+    <title>yfinance.async_download &#8212; yfinance</title>
   
   
   
@@ -42,11 +42,11 @@
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=f281be69"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/yfinance.Ticker.growth_estimates';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/yfinance.async_download';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="yfinance.Ticker.get_funds_data" href="yfinance.Ticker.get_funds_data.html" />
-    <link rel="prev" title="yfinance.Ticker.get_growth_estimates" href="yfinance.Ticker.get_growth_estimates.html" />
+    <link rel="next" title="yfinance.enable_debug_mode" href="yfinance.enable_debug_mode.html" />
+    <link rel="prev" title="yfinance.download" href="yfinance.download.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -381,7 +381,7 @@ document.write(`
 <li class="toctree-l2"><a class="reference internal" href="yfinance.Ticker.sec_filings.html">yfinance.Ticker.sec_filings</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../yfinance.analysis.html">Analysis &amp; Holdings</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../yfinance.analysis.html">Analysis &amp; Holdings</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="yfinance.Ticker.get_recommendations.html">yfinance.Ticker.get_recommendations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="yfinance.Ticker.recommendations.html">yfinance.Ticker.recommendations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="yfinance.Ticker.get_recommendations_summary.html">yfinance.Ticker.get_recommendations_summary</a></li>
@@ -403,7 +403,7 @@ document.write(`
 <li class="toctree-l2"><a class="reference internal" href="yfinance.Ticker.get_eps_revisions.html">yfinance.Ticker.get_eps_revisions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="yfinance.Ticker.eps_revisions.html">yfinance.Ticker.eps_revisions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="yfinance.Ticker.get_growth_estimates.html">yfinance.Ticker.get_growth_estimates</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">yfinance.Ticker.growth_estimates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yfinance.Ticker.growth_estimates.html">yfinance.Ticker.growth_estimates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="yfinance.Ticker.get_funds_data.html">yfinance.Ticker.get_funds_data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="yfinance.Ticker.funds_data.html">yfinance.Ticker.funds_data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="yfinance.Ticker.get_insider_purchases.html">yfinance.Ticker.get_insider_purchases</a></li>
@@ -445,9 +445,9 @@ document.write(`
 <li class="toctree-l2"><a class="reference internal" href="yfinance.screen.html">yfinance.screen</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../yfinance.functions.html">Functions and Utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../yfinance.functions.html">Functions and Utilities</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="yfinance.download.html">yfinance.download</a></li>
-<li class="toctree-l2"><a class="reference internal" href="yfinance.async_download.html">yfinance.async_download</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">yfinance.async_download</a></li>
 <li class="toctree-l2"><a class="reference internal" href="yfinance.enable_debug_mode.html">yfinance.enable_debug_mode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="yfinance.set_tz_cache_location.html">yfinance.set_tz_cache_location</a></li>
 </ul>
@@ -498,9 +498,9 @@ document.write(`
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">API Reference</a></li>
     
     
-    <li class="breadcrumb-item"><a href="../yfinance.analysis.html" class="nav-link">Analysis &amp; Holdings</a></li>
+    <li class="breadcrumb-item"><a href="../yfinance.functions.html" class="nav-link">Functions and Utilities</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">yfinance.Tic...</li>
+    <li class="breadcrumb-item active" aria-current="page">yfinance.asy...</li>
   </ul>
 </nav>
 </div>
@@ -517,12 +517,16 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="yfinance-ticker-growth-estimates">
-<h1>yfinance.Ticker.growth_estimates<a class="headerlink" href="#yfinance-ticker-growth-estimates" title="Link to this heading">#</a></h1>
-<dl class="py property">
-<dt class="sig sig-object py" id="yfinance.Ticker.growth_estimates">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Ticker.</span></span><span class="sig-name descname"><span class="pre">growth_estimates</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><a class="headerlink" href="#yfinance.Ticker.growth_estimates" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+  <section id="yfinance-async-download">
+<h1>yfinance.async_download<a class="headerlink" href="#yfinance-async-download" title="Link to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="yfinance.async_download">
+<span class="sig-prename descclassname"><span class="pre">yfinance.</span></span><span class="sig-name descname"><span class="pre">async_download</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tickers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threads=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_tz=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_by='column'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_adjust=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">back_adjust=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repair=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keepna=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period='max'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval='1d'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prepost=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxy=&lt;object</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rounding=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout=10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_level_index=True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#yfinance.async_download" title="Link to this definition">#</a></dt>
+<dd><p>Asynchronous version of <a class="reference internal" href="yfinance.download.html#yfinance.download" title="yfinance.download"><code class="xref py py-func docutils literal notranslate"><span class="pre">download()</span></code></a>.</p>
+<p>Parameters mirror <a class="reference internal" href="yfinance.download.html#yfinance.download" title="yfinance.download"><code class="xref py py-func docutils literal notranslate"><span class="pre">download()</span></code></a>. Internally the synchronous
+<a class="reference internal" href="yfinance.download.html#yfinance.download" title="yfinance.download"><code class="xref py py-func docutils literal notranslate"><span class="pre">download()</span></code></a> function is executed in a background thread so the
+event loop is not blocked.</p>
+</dd></dl>
 
 </section>
 
@@ -537,20 +541,20 @@ document.write(`
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="yfinance.Ticker.get_growth_estimates.html"
+       href="yfinance.download.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">yfinance.Ticker.get_growth_estimates</p>
+        <p class="prev-next-title">yfinance.download</p>
       </div>
     </a>
     <a class="right-next"
-       href="yfinance.Ticker.get_funds_data.html"
+       href="yfinance.enable_debug_mode.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">yfinance.Ticker.get_funds_data</p>
+        <p class="prev-next-title">yfinance.enable_debug_mode</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -572,14 +576,14 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#yfinance.Ticker.growth_estimates"><code class="docutils literal notranslate"><span class="pre">Ticker.growth_estimates</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#yfinance.async_download"><code class="docutils literal notranslate"><span class="pre">async_download()</span></code></a></li>
 </ul>
   </nav></div>
 
   <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="../../_sources/reference/api/yfinance.Ticker.growth_estimates.rst.txt">
+    <a href="../../_sources/reference/api/yfinance.async_download.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>
