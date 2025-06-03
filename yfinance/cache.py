@@ -5,6 +5,8 @@ import platformdirs as _ad
 import atexit as _atexit
 import datetime as _datetime
 import pickle as _pkl
+import json as _json
+import http.cookiejar as _cj
 
 from .utils import get_yf_logger
 
@@ -320,6 +322,61 @@ class _CookieSchema(_peewee.Model):
         without_rowid = True
 
 
+def _cookie_to_dict(cookie: _cj.Cookie):
+    return {
+        'version': cookie.version,
+        'name': cookie.name,
+        'value': cookie.value,
+        'port': cookie.port,
+        'port_specified': cookie.port_specified,
+        'domain': cookie.domain,
+        'domain_specified': cookie.domain_specified,
+        'domain_initial_dot': cookie.domain_initial_dot,
+        'path': cookie.path,
+        'path_specified': cookie.path_specified,
+        'secure': cookie.secure,
+        'expires': cookie.expires,
+        'discard': cookie.discard,
+        'comment': cookie.comment,
+        'comment_url': cookie.comment_url,
+        'rest': cookie._rest,
+        'rfc2109': cookie.rfc2109,
+    }
+
+
+def _dict_to_cookie(d: dict) -> _cj.Cookie:
+    return _cj.Cookie(
+        d['version'], d['name'], d['value'], d['port'], d['port_specified'],
+        d['domain'], d['domain_specified'], d['domain_initial_dot'],
+        d['path'], d['path_specified'], d['secure'], d['expires'],
+        d['discard'], d['comment'], d['comment_url'], d.get('rest', {}),
+        d.get('rfc2109', False)
+    )
+
+
+def _cookies_to_json(cookies: dict) -> str:
+    ser = {}
+    for domain, paths in cookies.items():
+        ser[domain] = {}
+        for path, names in paths.items():
+            ser[domain][path] = {}
+            for name, cookie in names.items():
+                ser[domain][path][name] = _cookie_to_dict(cookie)
+    return _json.dumps(ser)
+
+
+def _json_to_cookies(data: str) -> dict:
+    raw = _json.loads(data)
+    cookies = {}
+    for domain, paths in raw.items():
+        cookies[domain] = {}
+        for path, names in paths.items():
+            cookies[domain][path] = {}
+            for name, cookie_dict in names.items():
+                cookies[domain][path][name] = _dict_to_cookie(cookie_dict)
+    return cookies
+
+
 class _CookieCache:
     def __init__(self):
         self.initialised = -1
@@ -372,9 +429,21 @@ class _CookieCache:
             return None
 
         try:
-            data =  _CookieSchema.get(_CookieSchema.strategy == strategy)
-            cookie = _pkl.loads(data.cookie_bytes)
-            return {'cookie':cookie, 'age':_datetime.datetime.now()-data.fetch_date}
+            data = _CookieSchema.get(_CookieSchema.strategy == strategy)
+            try:
+                cookie_json = data.cookie_bytes.decode('utf-8') if isinstance(data.cookie_bytes, (bytes, bytearray)) else data.cookie_bytes
+                cookies = _json_to_cookies(cookie_json)
+            except Exception:
+                # old format using pickle
+                try:
+                    cookies = _pkl.loads(data.cookie_bytes)
+                except Exception:
+                    # corrupted data, invalidate
+                    self.store(strategy, None)
+                    return None
+                # migrate
+                self.store(strategy, cookies)
+            return {'cookie': cookies, 'age': _datetime.datetime.now() - data.fetch_date}
         except _CookieSchema.DoesNotExist:
             return None
 
@@ -397,8 +466,8 @@ class _CookieCache:
             if cookie is None:
                 return
             with db.atomic():
-                cookie_pkl = _pkl.dumps(cookie, _pkl.HIGHEST_PROTOCOL)
-                _CookieSchema.insert(strategy=strategy, cookie_bytes=cookie_pkl).execute()
+                cookie_json = _cookies_to_json(cookie)
+                _CookieSchema.insert(strategy=strategy, cookie_bytes=cookie_json.encode('utf-8')).execute()
         except _peewee.IntegrityError:
             raise
             # # Integrity error means the strategy already exists. Try updating the strategy.
