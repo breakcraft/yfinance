@@ -2,6 +2,8 @@ _QUERY1_URL_ = 'https://query1.finance.yahoo.com'
 _BASE_URL_ = 'https://query2.finance.yahoo.com'
 _ROOT_URL_ = 'https://finance.yahoo.com'
 
+_SENTINEL_ = object()
+
 fundamentals_keys = {
     'financials': ["TaxEffectOfUnusualItems", "TaxRateForCalcs", "NormalizedEBITDA", "NormalizedDilutedEPS",
                    "NormalizedBasicEPS", "TotalUnusualItems", "TotalUnusualItemsExcludingGoodwill",
@@ -305,20 +307,91 @@ SECTOR_INDUSTY_MAPPING = {
                     'utilities-independent-power-producers',
                     'utilities-regulated-water'}
 }
+
+def merge_two_level_dicts(dict1, dict2):
+    result = dict1.copy()
+    for key, value in dict2.items():
+        if key in result:
+            # If both are sets, merge them
+            if isinstance(value, set) and isinstance(result[key], set):
+                result[key] = result[key] | value
+            # If both are dicts, merge their contents
+            elif isinstance(value, dict) and isinstance(result[key], dict):
+                result[key] = {
+                    k: (result[key].get(k, set()) | v if isinstance(v, set) 
+                        else v) if k in result[key]
+                    else v
+                    for k, v in value.items()
+                }
+        else:
+            result[key] = value
+    return result
+
 EQUITY_SCREENER_EQ_MAP = {
-    "region": {
-        "za", "ve", "vn", "us", "tw", "th", "tr", "sr", "sg", "sa", "se", "ru", "ro", "qa", "pt", "pk", "pl",
-        "ph", "nz", "nl", "mx", "pe", "no", "my", "lv", "lt", "kw", "jp", "is", "il", "lk", "kr", "it", "in",
-        "ie", "hu", "id", "hk", "gb", "fi", "eg", "dk", "gr", "fr", "es", "ee", "de", "cz", "cl", "ca", "be",
-        "at", "cn", "br", "au", "ar", "ch"
+    "exchange": {
+        'ar': {'BUE'},
+        'at': {'VIE'},
+        'au': {'ASX'},
+        'be': {'BRU'},
+        'br': {'SAO'},
+        'ca': {'CNQ', 'NEO', 'TOR', 'VAN'},
+        'ch': {'EBS'},
+        'cl': {'SGO'},
+        'cn': {'SHH', 'SHZ'},
+        'co': {'BVC'},
+        'cz': {'PRA'},
+        'de': {'BER', 'DUS', 'FRA', 'HAM', 'GER', 'MUN', 'STU'},
+        'dk': {'CPH'},
+        'ee': {'TAL'},
+        'eg': {'CAI'},
+        'es': {'MCE'},
+        'fi': {'HEL'},
+        'fr': {'PAR'},
+        'gb': {'AQS', 'IOB', 'LSE'},
+        'gr': {'ATH'},
+        'hk': {'HKG'},
+        'hu': {'BUD'},
+        'id': {'JKT'},
+        'ie': {'ISE'},
+        'il': {'TLV'},
+        'in': {'BSE', 'NSI'},
+        'is': {'ICE'},
+        'it': {'MIL'},
+        'jp': {'FKA', 'JPX', 'SAP'},
+        'kr': {'KOE', 'KSC'},
+        'kw': {'KUW'},
+        'lk': {},
+        'lt': {'LIT'},
+        'lv': {'RIS'},
+        'mx': {'MEX'},
+        'my': {'KLS'},
+        'nl': {'AMS'},
+        'no': {'OSL'},
+        'nz': {'NZE'},
+        'pe': {},
+        'ph': {'PHP', 'PHS'},
+        'pk': {},
+        'pl': {'WSE'},
+        'pt': {'LIS'},
+        'qa': {'DOH'},
+        'ro': {'BVB'},
+        'ru': {},
+        'sa': {'SAU'},
+        'se': {'STO'},
+        'sg': {'SES'},
+        'sr': {},
+        'th': {'SET'},
+        'tr': {'IST'},
+        'tw': {'TAI', 'TWO'},
+        'us': {'ASE', 'BTS', 'CXI', 'NCM', 'NGM', 'NMS', 'NYQ', 'OEM', 'OQB', 'OQX', 'PCX', 'PNK', 'YHD'},
+        've': {'CCS'},
+        'vn': {},
+        'za': {'JNB'}
     },
     "sector": {
         "Basic Materials", "Industrials", "Communication Services", "Healthcare",
         "Real Estate", "Technology", "Energy", "Utilities", "Financial Services",
         "Consumer Defensive", "Consumer Cyclical"
-    },
-    "exchanges": {
-        "NMS", "NAS", "YHD", "NYQ", "NGM", "NCM", "BSE"
     },
     "peer_group": {
         "US Fund Equity Energy",
@@ -426,136 +499,148 @@ EQUITY_SCREENER_EQ_MAP = {
         "Banks"
     }
 }
+EQUITY_SCREENER_EQ_MAP['region'] = EQUITY_SCREENER_EQ_MAP['exchange'].keys()
+ordered_keys = ['region'] + [k for k in EQUITY_SCREENER_EQ_MAP.keys() if k != 'region']
+EQUITY_SCREENER_EQ_MAP = {k:EQUITY_SCREENER_EQ_MAP[k] for k in ordered_keys}
+FUND_SCREENER_EQ_MAP = {
+    "exchange": {
+        'us': {'NAS'}
+    }
+}
+COMMON_SCREENER_FIELDS = {
+    "price":{
+        "eodprice",
+        "intradaypricechange",
+        "intradayprice"
+    },
+    "eq_fields": {
+        "exchange"}, 
+}
+FUND_SCREENER_FIELDS = {
+    "eq_fields": {
+        "categoryname",
+        "performanceratingoverall",
+        "initialinvestment", 
+        "annualreturnnavy1categoryrank", 
+        "riskratingoverall"}
+}
+FUND_SCREENER_FIELDS = merge_two_level_dicts(FUND_SCREENER_FIELDS, COMMON_SCREENER_FIELDS)
 EQUITY_SCREENER_FIELDS = {
-    # EQ Fields
-    "region",
-    "sector",
-    "peer_group",
-    "exchanges",
-
-    # price
-    "eodprice",
-    "intradaypricechange",
-    "lastclosemarketcap.lasttwelvemonths",
-    "percentchange",
-    "lastclose52weekhigh.lasttwelvemonths",
-    "fiftytwowkpercentchange",
-    "intradayprice",
-    "lastclose52weeklow.lasttwelvemonths",
-    "intradaymarketcap",
-
-    # trading
-    "beta",
-    "avgdailyvol3m",
-    "pctheldinsider",
-    "pctheldinst",
-    "dayvolume",
-    "eodvolume",
-
-    # short interest
-    "short_percentage_of_shares_outstanding.value",
-    "short_interest.value",
-    "short_percentage_of_float.value",
-    "days_to_cover_short.value",
-    "short_interest_percentage_change.value",
-
-    # valuation
-    "bookvalueshare.lasttwelvemonths",
-    "lastclosemarketcaptotalrevenue.lasttwelvemonths",
-    "lastclosetevtotalrevenue.lasttwelvemonths",
-    "pricebookratio.quarterly",
-    "peratio.lasttwelvemonths",
-    "lastclosepricetangiblebookvalue.lasttwelvemonths",
-    "lastclosepriceearnings.lasttwelvemonths",
-    "pegratio_5y",
-
-    # profitability
-    "consecutive_years_of_dividend_growth_count",
-    "returnonassets.lasttwelvemonths",
-    "returnonequity.lasttwelvemonths",
-    "forward_dividend_per_share",
-    "forward_dividend_yield",
-    "returnontotalcapital.lasttwelvemonths",
-
-    # leverage
-    "lastclosetevebit.lasttwelvemonths",
-    "netdebtebitda.lasttwelvemonths",
-    "totaldebtequity.lasttwelvemonths",
-    "ltdebtequity.lasttwelvemonths",
-    "ebitinterestexpense.lasttwelvemonths",
-    "ebitdainterestexpense.lasttwelvemonths",
-    "lastclosetevebitda.lasttwelvemonths",
-    "totaldebtebitda.lasttwelvemonths",
-
-    # liquidity
-    "quickratio.lasttwelvemonths",
-    "altmanzscoreusingtheaveragestockinformationforaperiod.lasttwelvemonths",
-    "currentratio.lasttwelvemonths",
-    "operatingcashflowtocurrentliabilities.lasttwelvemonths",
-
-    # income statement
-    "totalrevenues.lasttwelvemonths",
-    "netincomemargin.lasttwelvemonths",
-    "grossprofit.lasttwelvemonths",
-    "ebitda1yrgrowth.lasttwelvemonths",
-    "dilutedepscontinuingoperations.lasttwelvemonths",
-    "quarterlyrevenuegrowth.quarterly",
-    "epsgrowth.lasttwelvemonths",
-    "netincomeis.lasttwelvemonths",
-    "ebitda.lasttwelvemonths",
-    "dilutedeps1yrgrowth.lasttwelvemonths",
-    "totalrevenues1yrgrowth.lasttwelvemonths",
-    "operatingincome.lasttwelvemonths",
-    "netincome1yrgrowth.lasttwelvemonths",
-    "grossprofitmargin.lasttwelvemonths",
-    "ebitdamargin.lasttwelvemonths",
-    "ebit.lasttwelvemonths",
-    "basicepscontinuingoperations.lasttwelvemonths",
-    "netepsbasic.lasttwelvemonths"
-    "netepsdiluted.lasttwelvemonths",
-
-    # balance sheet
-    "totalassets.lasttwelvemonths",
-    "totalcommonsharesoutstanding.lasttwelvemonths",
-    "totaldebt.lasttwelvemonths",
-    "totalequity.lasttwelvemonths",
-    "totalcurrentassets.lasttwelvemonths",
-    "totalcashandshortterminvestments.lasttwelvemonths",
-    "totalcommonequity.lasttwelvemonths",
-    "totalcurrentliabilities.lasttwelvemonths",
-    "totalsharesoutstanding",
-
-    # cash flow
-    "forward_dividend_yield",
-    "leveredfreecashflow.lasttwelvemonths",
-    "capitalexpenditure.lasttwelvemonths",
-    "cashfromoperations.lasttwelvemonths",
-    "leveredfreecashflow1yrgrowth.lasttwelvemonths",
-    "unleveredfreecashflow.lasttwelvemonths",
-    "cashfromoperations1yrgrowth.lasttwelvemonths",
-
-    # ESG
-    "esg_score",
-    "environmental_score",
-    "governance_score",
-    "social_score",
-    "highest_controversy"
+    "eq_fields": {
+        "region",
+        "sector",
+        "peer_group"}, 
+    "price":{
+        "lastclosemarketcap.lasttwelvemonths",
+        "percentchange",
+        "lastclose52weekhigh.lasttwelvemonths",
+        "fiftytwowkpercentchange",
+        "lastclose52weeklow.lasttwelvemonths",
+        "intradaymarketcap"},
+    "trading":{
+        "beta",
+        "avgdailyvol3m",
+        "pctheldinsider",
+        "pctheldinst",
+        "dayvolume",
+        "eodvolume"},
+    "short_interest":{
+        "short_percentage_of_shares_outstanding.value",
+        "short_interest.value",
+        "short_percentage_of_float.value",
+        "days_to_cover_short.value",
+        "short_interest_percentage_change.value"},
+    "valuation":{
+        "bookvalueshare.lasttwelvemonths",
+        "lastclosemarketcaptotalrevenue.lasttwelvemonths",
+        "lastclosetevtotalrevenue.lasttwelvemonths",
+        "pricebookratio.quarterly",
+        "peratio.lasttwelvemonths",
+        "lastclosepricetangiblebookvalue.lasttwelvemonths",
+        "lastclosepriceearnings.lasttwelvemonths",
+        "pegratio_5y"},
+    "profitability":{
+        "consecutive_years_of_dividend_growth_count",
+        "returnonassets.lasttwelvemonths",
+        "returnonequity.lasttwelvemonths",
+        "forward_dividend_per_share",
+        "forward_dividend_yield",
+        "returnontotalcapital.lasttwelvemonths"},
+    "leverage":{
+        "lastclosetevebit.lasttwelvemonths",
+        "netdebtebitda.lasttwelvemonths",
+        "totaldebtequity.lasttwelvemonths",
+        "ltdebtequity.lasttwelvemonths",
+        "ebitinterestexpense.lasttwelvemonths",
+        "ebitdainterestexpense.lasttwelvemonths",
+        "lastclosetevebitda.lasttwelvemonths",
+        "totaldebtebitda.lasttwelvemonths"},
+    "liquidity":{
+        "quickratio.lasttwelvemonths",
+        "altmanzscoreusingtheaveragestockinformationforaperiod.lasttwelvemonths",
+        "currentratio.lasttwelvemonths",
+        "operatingcashflowtocurrentliabilities.lasttwelvemonths"},
+    "income_statement":{
+        "totalrevenues.lasttwelvemonths",
+        "netincomemargin.lasttwelvemonths",
+        "grossprofit.lasttwelvemonths",
+        "ebitda1yrgrowth.lasttwelvemonths",
+        "dilutedepscontinuingoperations.lasttwelvemonths",
+        "quarterlyrevenuegrowth.quarterly",
+        "epsgrowth.lasttwelvemonths",
+        "netincomeis.lasttwelvemonths",
+        "ebitda.lasttwelvemonths",
+        "dilutedeps1yrgrowth.lasttwelvemonths",
+        "totalrevenues1yrgrowth.lasttwelvemonths",
+        "operatingincome.lasttwelvemonths",
+        "netincome1yrgrowth.lasttwelvemonths",
+        "grossprofitmargin.lasttwelvemonths",
+        "ebitdamargin.lasttwelvemonths",
+        "ebit.lasttwelvemonths",
+        "basicepscontinuingoperations.lasttwelvemonths",
+        "netepsbasic.lasttwelvemonths"
+        "netepsdiluted.lasttwelvemonths"},
+    "balance_sheet":{
+        "totalassets.lasttwelvemonths",
+        "totalcommonsharesoutstanding.lasttwelvemonths",
+        "totaldebt.lasttwelvemonths",
+        "totalequity.lasttwelvemonths",
+        "totalcurrentassets.lasttwelvemonths",
+        "totalcashandshortterminvestments.lasttwelvemonths",
+        "totalcommonequity.lasttwelvemonths",
+        "totalcurrentliabilities.lasttwelvemonths",
+        "totalsharesoutstanding"},
+    "cash_flow":{
+        "forward_dividend_yield",
+        "leveredfreecashflow.lasttwelvemonths",
+        "capitalexpenditure.lasttwelvemonths",
+        "cashfromoperations.lasttwelvemonths",
+        "leveredfreecashflow1yrgrowth.lasttwelvemonths",
+        "unleveredfreecashflow.lasttwelvemonths",
+        "cashfromoperations1yrgrowth.lasttwelvemonths"},
+    "esg":{
+        "esg_score",
+        "environmental_score",
+        "governance_score",
+        "social_score",
+        "highest_controversy"}
 }
+EQUITY_SCREENER_FIELDS = merge_two_level_dicts(EQUITY_SCREENER_FIELDS, COMMON_SCREENER_FIELDS)
 
-PREDEFINED_SCREENER_BODY_MAP = {
-    'aggressive_small_caps': {"offset":0,"size":25,"sortField":"eodvolume","sortType":"desc","quoteType":"equity","query":{"operator":"and","operands":[{"operator":"or","operands":[{"operator":"eq","operands":["exchange","NMS"]},{"operator":"eq","operands":["exchange","NYQ"]}]},{"operator":"or","operands":[{"operator":"LT","operands":["epsgrowth.lasttwelvemonths",15]}]}]},"userId":"","userIdType":"guid"},
-    'day_gainers': {"offset":0,"size":25,"sortField":"percentchange","sortType":"DESC","quoteType":"EQUITY","query":{"operator":"AND","operands":[{"operator":"gt","operands":["percentchange",3]},{"operator":"eq","operands":["region","us"]},{"operator":"or","operands":[{"operator":"BTWN","operands":["intradaymarketcap",2000000000,10000000000]},{"operator":"BTWN","operands":["intradaymarketcap",10000000000,100000000000]},{"operator":"GT","operands":["intradaymarketcap",100000000000]}]},{"operator":"gte","operands":["intradayprice",5]},{"operator":"gt","operands":["dayvolume",15000]}]},"userId":"","userIdType":"guid"},
-    'day_losers': {"offset":0,"size":25,"sortField":"percentchange","sortType":"ASC","quoteType":"EQUITY","query":{"operator":"AND","operands":[{"operator":"lt","operands":["percentchange",-2.5]},{"operator":"eq","operands":["region","us"]},{"operator":"or","operands":[{"operator":"BTWN","operands":["intradaymarketcap",2000000000,10000000000]},{"operator":"BTWN","operands":["intradaymarketcap",10000000000,100000000000]},{"operator":"GT","operands":["intradaymarketcap",100000000000]}]},{"operator":"gte","operands":["intradayprice",5]},{"operator":"gt","operands":["dayvolume",20000]}]},"userId":"","userIdType":"guid"},
-    'growth_technology_stocks': {"offset":0,"size":25,"sortField":"eodvolume","sortType":"desc","quoteType":"equity","query":{"operator":"and","operands":[{"operator":"or","operands":[{"operator":"BTWN","operands":["quarterlyrevenuegrowth.quarterly",50,100]},{"operator":"GT","operands":["quarterlyrevenuegrowth.quarterly",100]},{"operator":"BTWN","operands":["quarterlyrevenuegrowth.quarterly",25,50]}]},{"operator":"or","operands":[{"operator":"BTWN","operands":["epsgrowth.lasttwelvemonths",25,50]},{"operator":"BTWN","operands":["epsgrowth.lasttwelvemonths",50,100]},{"operator":"GT","operands":["epsgrowth.lasttwelvemonths",100]}]},{"operator":"eq","operands":["sector","Technology"]},{"operator":"or","operands":[{"operator":"eq","operands":["exchange","NMS"]},{"operator":"eq","operands":["exchange","NYQ"]}]}]},"userId":"","userIdType":"guid"},
-    'most_actives': {"offset":0,"size":25,"sortField":"dayvolume","sortType":"DESC","quoteType":"EQUITY","query":{"operator":"AND","operands":[{"operator":"eq","operands":["region","us"]},{"operator":"or","operands":[{"operator":"BTWN","operands":["intradaymarketcap",10000000000,100000000000]},{"operator":"GT","operands":["intradaymarketcap",100000000000]},{"operator":"BTWN","operands":["intradaymarketcap",2000000000,10000000000]}]},{"operator":"gt","operands":["dayvolume",5000000]}]},"userId":"","userIdType":"guid"},
-    'most_shorted_stocks': {"size":25,"offset":0,"sortField":"short_percentage_of_shares_outstanding.value","sortType":"DESC","quoteType":"EQUITY","topOperator":"AND","query":{"operator":"AND","operands":[{"operator":"or","operands":[{"operator":"EQ","operands":["region","us"]}]},{"operator":"gt","operands":["intradayprice",1]},{"operator":"gt","operands":["avgdailyvol3m",200000]}]},"userId":"","userIdType":"guid"},
-    'small_cap_gainers': {"offset":0,"size":25,"sortField":"eodvolume","sortType":"desc","quoteType":"equity","query":{"operator":"and","operands":[{"operator":"lt","operands":["intradaymarketcap",2000000000]},{"operator":"or","operands":[{"operator":"eq","operands":["exchange","NMS"]},{"operator":"eq","operands":["exchange","NYQ"]}]}]},"userId":"","userIdType":"guid"},
-    'undervalued_growth_stocks': {"offset":0,"size":25,"sortType":"DESC","sortField":"eodvolume","quoteType":"EQUITY","query":{"operator":"and","operands":[{"operator":"or","operands":[{"operator":"BTWN","operands":["peratio.lasttwelvemonths",0,20]}]},{"operator":"or","operands":[{"operator":"LT","operands":["pegratio_5y",1]}]},{"operator":"or","operands":[{"operator":"BTWN","operands":["epsgrowth.lasttwelvemonths",25,50]},{"operator":"BTWN","operands":["epsgrowth.lasttwelvemonths",50,100]},{"operator":"GT","operands":["epsgrowth.lasttwelvemonths",100]}]},{"operator":"or","operands":[{"operator":"eq","operands":["exchange","NMS"]},{"operator":"eq","operands":["exchange","NYQ"]}]}]},"userId":"","userIdType":"guid"},
-    'undervalued_large_caps': {"offset":0,"size":25,"sortField":"eodvolume","sortType":"desc","quoteType":"equity","query":{"operator":"and","operands":[{"operator":"or","operands":[{"operator":"BTWN","operands":["peratio.lasttwelvemonths",0,20]}]},{"operator":"lt","operands":["pegratio_5y",1]},{"operator":"btwn","operands":["intradaymarketcap",10000000000,100000000000]},{"operator":"or","operands":[{"operator":"eq","operands":["exchange","NMS"]},{"operator":"eq","operands":["exchange","NYQ"]}]}]},"userId":"","userIdType":"guid"},
-    'conservative_foreign_funds': {"offset":0,"size":25,"sortType":"DESC","sortField":"fundnetassets","quoteType":"MUTUALFUND","query":{"operator":"and","operands":[{"operator":"or","operands":[{"operator":"EQ","operands":["categoryname","Foreign Large Value"]},{"operator":"EQ","operands":["categoryname","Foreign Large Blend"]},{"operator":"EQ","operands":["categoryname","Foreign Large Growth"]},{"operator":"EQ","operands":["categoryname","Foreign Small/Mid Growth"]},{"operator":"EQ","operands":["categoryname","Foreign Large Blend"]},{"operator":"EQ","operands":["categoryname","Foreign Small/Mid Blend"]},{"operator":"EQ","operands":["categoryname","Foreign Small/Mid Value"]},{"operator":"EQ","operands":["categoryname","Foreign Small/Mid Blend"]},{"operator":"EQ","operands":["categoryname","Foreign Small/Mid Value"]},{"operator":"EQ","operands":["categoryname","Foreign Small/Mid Blend"]},{"operator":"EQ","operands":["categoryname","Foreign Small/Mid Value"]},{"operator":"EQ","operands":["categoryname","Foreign Small/Mid Blend"]},{"operator":"EQ","operands":["categoryname","Foreign Small/Mid Value"]}]},{"operator":"or","operands":[{"operator":"EQ","operands":["performanceratingoverall",4]},{"operator":"EQ","operands":["performanceratingoverall",5]}]},{"operator":"lt","operands":["initialinvestment",100001]},{"operator":"lt","operands":["annualreturnnavy1categoryrank",50]},{"operator":"or","operands":[{"operator":"EQ","operands":["riskratingoverall",1]},{"operator":"EQ","operands":["riskratingoverall",3]},{"operator":"EQ","operands":["riskratingoverall",2]}]},{"operator":"or","operands":[{"operator":"eq","operands":["exchange","NAS"]}]}]},"userId":"","userIdType":"guid"},
-    'high_yield_bond': {"offset":0,"size":25,"sortType":"DESC","sortField":"fundnetassets","quoteType":"MUTUALFUND","query":{"operator":"and","operands":[{"operator":"or","operands":[{"operator":"EQ","operands":["performanceratingoverall",4]},{"operator":"EQ","operands":["performanceratingoverall",5]}]},{"operator":"lt","operands":["initialinvestment",100001]},{"operator":"lt","operands":["annualreturnnavy1categoryrank",50]},{"operator":"or","operands":[{"operator":"EQ","operands":["riskratingoverall",1]},{"operator":"EQ","operands":["riskratingoverall",3]},{"operator":"EQ","operands":["riskratingoverall",2]}]},{"operator":"or","operands":[{"operator":"EQ","operands":["categoryname","High Yield Bond"]}]},{"operator":"or","operands":[{"operator":"eq","operands":["exchange","NAS"]}]}]},"userId":"","userIdType":"guid"},
-    'portfolio_anchors': {"offset":0,"size":25,"sortType":"DESC","sortField":"fundnetassets","quoteType":"MUTUALFUND","query":{"operator":"and","operands":[{"operator":"or","operands":[{"operator":"EQ","operands":["categoryname","Large Blend"]}]},{"operator":"or","operands":[{"operator":"EQ","operands":["performanceratingoverall",4]},{"operator":"EQ","operands":["performanceratingoverall",5]}]},{"operator":"lt","operands":["initialinvestment",100001]},{"operator":"lt","operands":["annualreturnnavy1categoryrank",50]},{"operator":"or","operands":[{"operator":"eq","operands":["exchange","NAS"]}]}]},"userId":"","userIdType":"guid"},
-    'solid_large_growth_funds': {"offset":0,"size":25,"sortType":"DESC","sortField":"fundnetassets","quoteType":"MUTUALFUND","query":{"operator":"and","operands":[{"operator":"or","operands":[{"operator":"EQ","operands":["categoryname","Large Growth"]}]},{"operator":"or","operands":[{"operator":"EQ","operands":["performanceratingoverall",5]},{"operator":"EQ","operands":["performanceratingoverall",4]}]},{"operator":"lt","operands":["initialinvestment",100001]},{"operator":"lt","operands":["annualreturnnavy1categoryrank",50]},{"operator":"or","operands":[{"operator":"eq","operands":["exchange","NAS"]}]}]},"userId":"","userIdType":"guid"},
-    'solid_midcap_growth_funds': {"offset":0,"size":25,"sortType":"DESC","sortField":"fundnetassets","quoteType":"MUTUALFUND","query":{"operator":"and","operands":[{"operator":"or","operands":[{"operator":"EQ","operands":["categoryname","Mid-Cap Growth"]}]},{"operator":"or","operands":[{"operator":"EQ","operands":["performanceratingoverall",5]},{"operator":"EQ","operands":["performanceratingoverall",4]}]},{"operator":"lt","operands":["initialinvestment",100001]},{"operator":"lt","operands":["annualreturnnavy1categoryrank",50]},{"operator":"or","operands":[{"operator":"eq","operands":["exchange","NAS"]}]}]},"userId":"","userIdType":"guid"},
-    'top_mutual_funds': {"offset":0,"size":25,"sortType":"DESC","sortField":"percentchange","quoteType":"MUTUALFUND","query":{"operator":"and","operands":[{"operator":"gt","operands":["intradayprice",15]},{"operator":"or","operands":[{"operator":"EQ","operands":["performanceratingoverall",5]},{"operator":"EQ","operands":["performanceratingoverall",4]}]},{"operator":"gt","operands":["initialinvestment",1000]},{"operator":"or","operands":[{"operator":"eq","operands":["exchange","NAS"]}]}]},"userId":"","userIdType":"guid"}
-}
+USER_AGENTS = [
+    # Chrome
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
+
+    # Firefox
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:135.0) Gecko/20100101 Firefox/135.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 14.7; rv:135.0) Gecko/20100101 Firefox/135.0",
+    "Mozilla/5.0 (X11; Linux i686; rv:135.0) Gecko/20100101 Firefox/135.0",
+
+    # Safari
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_7_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Safari/605.1.15",
+
+    # Edge
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/131.0.2903.86"
+]
