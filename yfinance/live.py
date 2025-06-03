@@ -1,6 +1,7 @@
 import asyncio
 import base64
 import json
+import time
 from typing import List, Optional, Callable, Union
 
 from websockets.sync.client import connect as sync_connect
@@ -19,6 +20,8 @@ class BaseWebSocket:
         self._ws = None
         self._subscriptions = set()
         self._subscription_interval = 15  # seconds
+        self._reconnect_delay = 1
+        self._max_reconnect_delay = 60
 
     def _decode_message(self, base64_message: str) -> dict:
         try:
@@ -34,6 +37,12 @@ class BaseWebSocket:
                 'error': str(e),
                 'raw_base64': base64_message
             }
+
+    def _reset_reconnect_delay(self):
+        self._reconnect_delay = 1
+
+    def _increase_reconnect_delay(self):
+        self._reconnect_delay = min(self._reconnect_delay * 2, self._max_reconnect_delay)
 
 
 class AsyncWebSocket(BaseWebSocket):
@@ -57,6 +66,7 @@ class AsyncWebSocket(BaseWebSocket):
         try:
             if self._ws is None:
                 self._ws = await async_connect(self.url)
+                self._reset_reconnect_delay()
                 self.logger.info("Connected to WebSocket.")
                 if self.verbose:
                     print("Connected to WebSocket.")
@@ -83,6 +93,18 @@ class AsyncWebSocket(BaseWebSocket):
                 if self.verbose:
                     print(f"Error in heartbeat subscription: {e}")
                 break
+
+    async def _reconnect(self):
+        self.logger.info("Attempting to reconnect...")
+        if self.verbose:
+            print("Attempting to reconnect...")
+        await asyncio.sleep(self._reconnect_delay)
+        try:
+            await self._connect()
+            self._reset_reconnect_delay()
+        except Exception:
+            self._increase_reconnect_delay()
+            raise
 
     async def subscribe(self, symbols: Union[str, List[str]]):
         """
@@ -180,12 +202,10 @@ class AsyncWebSocket(BaseWebSocket):
                 if self.verbose:
                     print("Error while listening to messages: %s", e)
 
-                # Attempt to reconnect if connection drops
-                self.logger.info("Attempting to reconnect...")
-                if self.verbose:
-                    print("Attempting to reconnect...")
-                await asyncio.sleep(3)  # backoff
-                await self._connect()
+                try:
+                    await self._reconnect()
+                except Exception:
+                    break
 
     async def close(self):
         """Close the WebSocket connection."""
@@ -225,6 +245,7 @@ class WebSocket(BaseWebSocket):
         try:
             if self._ws is None:
                 self._ws = sync_connect(self.url)
+                self._reset_reconnect_delay()
                 self.logger.info("Connected to WebSocket.")
                 if self.verbose:
                     print("Connected to WebSocket.")
@@ -277,6 +298,18 @@ class WebSocket(BaseWebSocket):
         if self.verbose:
             print(f"Unsubscribed from symbols: {symbols}")
 
+    def _reconnect(self):
+        self.logger.info("Attempting to reconnect...")
+        if self.verbose:
+            print("Attempting to reconnect...")
+        time.sleep(self._reconnect_delay)
+        try:
+            self._connect()
+            self._reset_reconnect_delay()
+        except Exception:
+            self._increase_reconnect_delay()
+            raise
+
     def listen(self, message_handler: Optional[Callable[[dict], None]] = None):
         """
         Start listening to messages from the WebSocket server.
@@ -317,7 +350,10 @@ class WebSocket(BaseWebSocket):
                 self.logger.error("Error while listening to messages: %s", e, exc_info=True)
                 if self.verbose:
                     print("Error while listening to messages: %s", e)
-                break
+                try:
+                    self._reconnect()
+                except Exception:
+                    break
 
     def close(self):
         """Close the WebSocket connection."""

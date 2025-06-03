@@ -1,7 +1,8 @@
 import unittest
-from unittest.mock import Mock
+import asyncio
+from unittest.mock import Mock, AsyncMock, patch
 
-from yfinance.live import BaseWebSocket
+from yfinance.live import BaseWebSocket, AsyncWebSocket, WebSocket
 
 
 class TestWebSocket(unittest.TestCase):
@@ -28,3 +29,25 @@ class TestWebSocket(unittest.TestCase):
         assert "error" in decoded
         assert "raw_base64" in decoded
         self.assertEqual(base64_message, decoded["raw_base64"])
+
+    def test_reconnect_delay_async(self):
+        ws = AsyncWebSocket(verbose=False)
+        ws._connect = AsyncMock(side_effect=[Exception("fail"), None])
+        with self.assertRaises(Exception):
+            asyncio.run(ws._reconnect())
+        self.assertEqual(2, ws._reconnect_delay)
+        asyncio.run(ws._reconnect())
+        self.assertEqual(1, ws._reconnect_delay)
+
+    def test_reconnect_delay_sync(self):
+        ws = WebSocket(verbose=False)
+        ws._connect = Mock(side_effect=[Exception("fail"), None])
+        with self.assertRaises(Exception):
+            ws._reconnect()
+        self.assertEqual(2, ws._reconnect_delay)
+        ws._reconnect()
+        self.assertEqual(1, ws._reconnect_delay)
+
+
+if __name__ == "__main__":
+    unittest.main()
