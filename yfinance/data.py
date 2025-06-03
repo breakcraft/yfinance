@@ -4,6 +4,7 @@ from functools import lru_cache
 from curl_cffi import requests
 from bs4 import BeautifulSoup
 import datetime
+import time as _time
 
 from frozendict import frozendict
 
@@ -366,15 +367,15 @@ class YfData(metaclass=SingletonMeta):
         return crumb, strategy
 
     @utils.log_indent_decorator
-    def get(self, url, params=None, timeout=30):
-        return self._make_request(url, request_method = self._session.get, params=params, timeout=timeout)
+    def get(self, url, params=None, timeout=30, max_retries=3):
+        return self._make_request(url, request_method=self._session.get, params=params, timeout=timeout, max_retries=max_retries)
 
     @utils.log_indent_decorator
-    def post(self, url, body, params=None, timeout=30):
-        return self._make_request(url, request_method = self._session.post, body=body, params=params, timeout=timeout)
+    def post(self, url, body, params=None, timeout=30, max_retries=3):
+        return self._make_request(url, request_method=self._session.post, body=body, params=params, timeout=timeout, max_retries=max_retries)
 
     @utils.log_indent_decorator
-    def _make_request(self, url, request_method, body=None, params=None, timeout=30):
+    def _make_request(self, url, request_method, body=None, params=None, timeout=30, max_retries=3):
         # Important: treat input arguments as immutable.
 
         if len(url) > 200:
@@ -403,9 +404,15 @@ class YfData(metaclass=SingletonMeta):
         if body:
             request_args['json'] = body
 
-        response = request_method(**request_args)
-        utils.get_yf_logger().debug(f'response code={response.status_code}')
-        if response.status_code >= 400:
+        response = None
+        for attempt in range(max_retries + 1):
+            response = request_method(**request_args)
+            utils.get_yf_logger().debug(f'response code={response.status_code}')
+            if response.status_code != 429 or attempt == max_retries:
+                break
+            _time.sleep(2 ** attempt)
+
+        if response.status_code >= 400 and response.status_code != 429:
             # Retry with other cookie strategy
             if strategy == 'basic':
                 self._set_cookie_strategy('csrf')
@@ -424,11 +431,11 @@ class YfData(metaclass=SingletonMeta):
 
     @lru_cache_freezeargs
     @lru_cache(maxsize=cache_maxsize)
-    def cache_get(self, url, params=None, timeout=30):
-        return self.get(url, params, timeout)
+    def cache_get(self, url, params=None, timeout=30, max_retries=3):
+        return self.get(url, params, timeout, max_retries)
 
-    def get_raw_json(self, url, params=None, timeout=30):
+    def get_raw_json(self, url, params=None, timeout=30, max_retries=3):
         utils.get_yf_logger().debug(f'get_raw_json(): {url}')
-        response = self.get(url, params=params, timeout=timeout)
+        response = self.get(url, params=params, timeout=timeout, max_retries=max_retries)
         response.raise_for_status()
         return response.json()

@@ -1,6 +1,10 @@
 Change Log
 ===========
 
+0.2.62
+------
+Add automatic retries on HTTP 429 responses and loosen period validation.
+
 0.2.61
 ------
 Fix ALL type hints in websocket #2493

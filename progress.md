@@ -1,0 +1,1 @@
+- Added retries for HTTP 429 and loosened period validation
