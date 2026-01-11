@@ -1,6 +1,0 @@
-﻿yfinance.async\_download
-========================
-
-.. currentmodule:: yfinance
-
-.. autofunction:: async_download

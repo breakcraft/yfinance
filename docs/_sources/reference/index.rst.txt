@@ -16,6 +16,7 @@ The following are the publicly available classes, and functions exposed by the `
 - :attr:`Ticker <yfinance.Ticker>`: Class for accessing single ticker data.
 - :attr:`Tickers <yfinance.Tickers>`: Class for handling multiple tickers.
 - :attr:`Market <yfinance.Market>`: Class for accessing market summary.
+- :attr:`Calendars <yfinance.Calendars>`: Class for accessing calendar events data.
 - :attr:`download <yfinance.download>`: Function to download market data for multiple tickers.
 - :attr:`Search <yfinance.Search>`: Class for accessing search results.
 - :attr:`Lookup <yfinance.Lookup>`: Class for looking up tickers.
@@ -23,7 +24,6 @@ The following are the publicly available classes, and functions exposed by the `
 - :class:`AsyncWebSocket <yfinance.AsyncWebSocket>`: Class for asynchronously streaming live market data.
 - :attr:`Sector <yfinance.Sector>`: Domain class for accessing sector information.
 - :attr:`Industry <yfinance.Industry>`: Domain class for accessing industry information.
-- :attr:`Market <yfinance.Market>`: Class for accessing market status & summary.
 - :attr:`EquityQuery <yfinance.EquityQuery>`: Class to build equity query filters.
 - :attr:`FundQuery <yfinance.FundQuery>`: Class to build fund query filters.
 - :attr:`screen <yfinance.screen>`: Run equity/fund queries.
@@ -38,9 +38,9 @@ The following are the publicly available classes, and functions exposed by the `
    yfinance.ticker_tickers
    yfinance.stock
    yfinance.market
+   yfinance.calendars
    yfinance.financials
    yfinance.analysis
-   yfinance.market
    yfinance.search
    yfinance.lookup
    yfinance.websocket

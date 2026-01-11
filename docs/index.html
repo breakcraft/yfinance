@@ -393,8 +393,6 @@ Remember - the Yahoo! finance API is intended for personal use only.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">tickers</span> <span class="o">=</span> <span class="n">yf</span><span class="o">.</span><span class="n">Tickers</span><span class="p">(</span><span class="s1">&#39;MSFT AAPL GOOG&#39;</span><span class="p">)</span>
 <span class="n">tickers</span><span class="o">.</span><span class="n">tickers</span><span class="p">[</span><span class="s1">&#39;MSFT&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">info</span>
 <span class="n">yf</span><span class="o">.</span><span class="n">download</span><span class="p">([</span><span class="s1">&#39;MSFT&#39;</span><span class="p">,</span> <span class="s1">&#39;AAPL&#39;</span><span class="p">,</span> <span class="s1">&#39;GOOG&#39;</span><span class="p">],</span> <span class="n">period</span><span class="o">=</span><span class="s1">&#39;1mo&#39;</span><span class="p">)</span>
-<span class="c1"># fetch more than 7 days of 1m data</span>
-<span class="n">yf</span><span class="o">.</span><span class="n">Ticker</span><span class="p">(</span><span class="s1">&#39;MSFT&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">history</span><span class="p">(</span><span class="n">period</span><span class="o">=</span><span class="s1">&#39;14d&#39;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="s1">&#39;1m&#39;</span><span class="p">,</span> <span class="n">span</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Funds</p>

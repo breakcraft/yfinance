@@ -361,6 +361,10 @@ document.write(`
 <li class="toctree-l2"><a class="reference internal" href="yfinance.Market.html">Market</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../yfinance.calendars.html">Calendars</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="yfinance.Calendars.html">Calendars</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../yfinance.financials.html">Financials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="yfinance.Ticker.get_income_stmt.html">yfinance.Ticker.get_income_stmt</a></li>
 <li class="toctree-l2"><a class="reference internal" href="yfinance.Ticker.income_stmt.html">yfinance.Ticker.income_stmt</a></li>
@@ -420,10 +424,6 @@ document.write(`
 <li class="toctree-l2"><a class="reference internal" href="yfinance.Ticker.mutualfund_holders.html">yfinance.Ticker.mutualfund_holders</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../yfinance.market.html">Market</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="yfinance.Market.html">Market</a></li>
-</ul>
-</details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../yfinance.search.html">Search &amp; Lookup</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="yfinance.Search.html">Search</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Lookup</a></li>
@@ -447,7 +447,6 @@ document.write(`
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../yfinance.functions.html">Functions and Utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="yfinance.download.html">yfinance.download</a></li>
-<li class="toctree-l2"><a class="reference internal" href="yfinance.async_download.html">yfinance.async_download</a></li>
 <li class="toctree-l2"><a class="reference internal" href="yfinance.enable_debug_mode.html">yfinance.enable_debug_mode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="yfinance.set_tz_cache_location.html">yfinance.set_tz_cache_location</a></li>
 </ul>
@@ -521,14 +520,13 @@ document.write(`
 <h1>Lookup<a class="headerlink" href="#lookup" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="yfinance.Lookup">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">yfinance.</span></span><span class="sig-name descname"><span class="pre">Lookup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#yfinance.Lookup" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">yfinance.</span></span><span class="sig-name descname"><span class="pre">Lookup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#yfinance.Lookup" title="Link to this definition">#</a></dt>
 <dd><p>Fetches quote (ticker) lookups from Yahoo Finance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>query</strong> (<em>str</em>) – The search query for financial data lookup.</p></li>
 <li><p><strong>session</strong> – Custom HTTP session for requests (default None).</p></li>
-<li><p><strong>proxy</strong> – Proxy settings for requests (default None).</p></li>
 <li><p><strong>timeout</strong> – Request timeout in seconds (default 30).</p></li>
 <li><p><strong>raise_errors</strong> – Raise exceptions on error (default True).</p></li>
 </ul>
@@ -586,7 +584,7 @@ document.write(`
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -677,36 +675,6 @@ document.write(`
 </dl>
 </dd></dl>
 
-<dl class="py property">
-<dt class="sig sig-object py" id="yfinance.Lookup.all">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">all</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><a class="headerlink" href="#yfinance.Lookup.all" title="Link to this definition">#</a></dt>
-<dd><p>Returns all available financial instruments.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="yfinance.Lookup.cryptocurrency">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cryptocurrency</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><a class="headerlink" href="#yfinance.Lookup.cryptocurrency" title="Link to this definition">#</a></dt>
-<dd><p>Returns Cryptocurrencies related financial instruments.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="yfinance.Lookup.currency">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">currency</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><a class="headerlink" href="#yfinance.Lookup.currency" title="Link to this definition">#</a></dt>
-<dd><p>Returns Currencies related financial instruments.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="yfinance.Lookup.etf">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">etf</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><a class="headerlink" href="#yfinance.Lookup.etf" title="Link to this definition">#</a></dt>
-<dd><p>Returns ETFs related financial instruments.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="yfinance.Lookup.future">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">future</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><a class="headerlink" href="#yfinance.Lookup.future" title="Link to this definition">#</a></dt>
-<dd><p>Returns Futures related financial instruments.</p>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="yfinance.Lookup.get_all">
 <span class="sig-name descname"><span class="pre">get_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#yfinance.Lookup.get_all" title="Link to this definition">#</a></dt>
@@ -795,24 +763,6 @@ document.write(`
 </dl>
 </dd></dl>
 
-<dl class="py property">
-<dt class="sig sig-object py" id="yfinance.Lookup.index">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">index</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><a class="headerlink" href="#yfinance.Lookup.index" title="Link to this definition">#</a></dt>
-<dd><p>Returns Indices related financial instruments.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="yfinance.Lookup.mutualfund">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mutualfund</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><a class="headerlink" href="#yfinance.Lookup.mutualfund" title="Link to this definition">#</a></dt>
-<dd><p>Returns mutual funds related financial instruments.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="yfinance.Lookup.stock">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stock</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><a class="headerlink" href="#yfinance.Lookup.stock" title="Link to this definition">#</a></dt>
-<dd><p>Returns stock related financial instruments.</p>
-</dd></dl>
-
 </dd></dl>
 
 </section>
@@ -864,11 +814,6 @@ document.write(`
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#yfinance.Lookup"><code class="docutils literal notranslate"><span class="pre">Lookup</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#yfinance.Lookup.all"><code class="docutils literal notranslate"><span class="pre">Lookup.all</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#yfinance.Lookup.cryptocurrency"><code class="docutils literal notranslate"><span class="pre">Lookup.cryptocurrency</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#yfinance.Lookup.currency"><code class="docutils literal notranslate"><span class="pre">Lookup.currency</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#yfinance.Lookup.etf"><code class="docutils literal notranslate"><span class="pre">Lookup.etf</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#yfinance.Lookup.future"><code class="docutils literal notranslate"><span class="pre">Lookup.future</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#yfinance.Lookup.get_all"><code class="docutils literal notranslate"><span class="pre">Lookup.get_all()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#yfinance.Lookup.get_cryptocurrency"><code class="docutils literal notranslate"><span class="pre">Lookup.get_cryptocurrency()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#yfinance.Lookup.get_currency"><code class="docutils literal notranslate"><span class="pre">Lookup.get_currency()</span></code></a></li>
@@ -877,9 +822,6 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#yfinance.Lookup.get_index"><code class="docutils literal notranslate"><span class="pre">Lookup.get_index()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#yfinance.Lookup.get_mutualfund"><code class="docutils literal notranslate"><span class="pre">Lookup.get_mutualfund()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#yfinance.Lookup.get_stock"><code class="docutils literal notranslate"><span class="pre">Lookup.get_stock()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#yfinance.Lookup.index"><code class="docutils literal notranslate"><span class="pre">Lookup.index</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#yfinance.Lookup.mutualfund"><code class="docutils literal notranslate"><span class="pre">Lookup.mutualfund</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#yfinance.Lookup.stock"><code class="docutils literal notranslate"><span class="pre">Lookup.stock</span></code></a></li>
 </ul>
 </li>
 </ul>

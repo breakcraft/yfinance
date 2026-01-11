@@ -56,8 +56,6 @@ Multiple ticker symbols
    tickers = yf.Tickers('MSFT AAPL GOOG')
    tickers.tickers['MSFT'].info
    yf.download(['MSFT', 'AAPL', 'GOOG'], period='1mo')
-   # fetch more than 7 days of 1m data
-   yf.Ticker('MSFT').history(period='14d', interval='1m', span=True)
 
 Funds
 
