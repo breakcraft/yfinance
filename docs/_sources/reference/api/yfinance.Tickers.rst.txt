@@ -6,7 +6,6 @@ Tickers
 .. currentmodule:: yfinance
 
 .. autoclass:: Tickers
-   :exclude-members: 
 
    
    

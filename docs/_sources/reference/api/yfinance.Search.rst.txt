@@ -6,7 +6,6 @@ Search
 .. currentmodule:: yfinance
 
 .. autoclass:: Search
-   :exclude-members: all, lists, nav, news, quotes, research, response
 
    
    

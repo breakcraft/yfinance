@@ -334,7 +334,6 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="config.html">Config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="caching.html">Caching</a></li>
 <li class="toctree-l1"><a class="reference internal" href="multi_level_columns.html">Multi-Level Column Index</a></li>
-<li class="toctree-l1"><a class="reference internal" href="price_repair.html">Price Repair</a></li>
 </ul>
 </div>
 </nav></div>
@@ -397,7 +396,7 @@ document.write(`
 <p><cite>yfinance</cite> uses the <cite>logging</cite> module to handle messages. By default, only errors are logged.</p>
 <p>If debugging, you can switch to debug mode with custom formatting using:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">yfinance</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">yf</span>
-<span class="n">yf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">debug</span><span class="o">.</span><span class="n">logging</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">yf</span><span class="o">.</span><span class="n">enable_debug_mode</span><span class="p">()</span>
 </pre></div>
 </div>
 </section>
