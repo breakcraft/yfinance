@@ -361,6 +361,10 @@ document.write(`
 <li class="toctree-l2"><a class="reference internal" href="yfinance.Market.html">Market</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../yfinance.calendars.html">Calendars</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="yfinance.Calendars.html">Calendars</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../yfinance.financials.html">Financials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="yfinance.Ticker.get_income_stmt.html">yfinance.Ticker.get_income_stmt</a></li>
 <li class="toctree-l2"><a class="reference internal" href="yfinance.Ticker.income_stmt.html">yfinance.Ticker.income_stmt</a></li>
@@ -418,10 +422,6 @@ document.write(`
 <li class="toctree-l2"><a class="reference internal" href="yfinance.Ticker.institutional_holders.html">yfinance.Ticker.institutional_holders</a></li>
 <li class="toctree-l2"><a class="reference internal" href="yfinance.Ticker.get_mutualfund_holders.html">yfinance.Ticker.get_mutualfund_holders</a></li>
 <li class="toctree-l2"><a class="reference internal" href="yfinance.Ticker.mutualfund_holders.html">yfinance.Ticker.mutualfund_holders</a></li>
-</ul>
-</details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../yfinance.market.html">Market</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="yfinance.Market.html">Market</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../yfinance.search.html">Search &amp; Lookup</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -596,7 +596,65 @@ document.write(`
 <tbody>
 <tr class="row-even"><td><p>exchange</p></td>
 <td><ul class="simple">
-<li><p>us: NAS</p></li>
+<li><p>ae: DFM</p></li>
+<li><p>ar: BUE</p></li>
+<li><p>at: VIE</p></li>
+<li><p>au: ASX, CXA</p></li>
+<li><p>be: BRU</p></li>
+<li><p>br: SAO</p></li>
+<li><p>ca: CNQ, NEO, TOR, VAN</p></li>
+<li><p>ch: EBS</p></li>
+<li><p>cl: SGO</p></li>
+<li><p>cn: SHH, SHZ</p></li>
+<li><p>co: BVC</p></li>
+<li><p>cz: PRA</p></li>
+<li><p>de: BER, DUS, EUX, FRA, GER, HAM, HAN, MUN, STU</p></li>
+<li><p>dk: CPH</p></li>
+<li><p>ee: TAL</p></li>
+<li><p>eg: CAI</p></li>
+<li><p>es: BAR, MAD, MCE</p></li>
+<li><p>fi: HEL</p></li>
+<li><p>fr: ENX, PAR</p></li>
+<li><p>gb: CXE, IOB, LSE</p></li>
+<li><p>gr: ATH</p></li>
+<li><p>hk: HKG</p></li>
+<li><p>hu: BUD</p></li>
+<li><p>id: JKT</p></li>
+<li><p>ie: ISE</p></li>
+<li><p>il: TLV</p></li>
+<li><p>in: BSE, NSI</p></li>
+<li><p>is: ICE</p></li>
+<li><p>it: MIL</p></li>
+<li><p>jp: FKA, JPX, OSA, SAP</p></li>
+<li><p>kr: KOE, KSC</p></li>
+<li><p>kw: KUW</p></li>
+<li><p>lk: CSE</p></li>
+<li><p>lt: LIT</p></li>
+<li><p>lv: RIS</p></li>
+<li><p>mx: MEX</p></li>
+<li><p>my: KLS</p></li>
+<li><p>nl: AMS</p></li>
+<li><p>no: OSL</p></li>
+<li><p>nz: NZE</p></li>
+<li><p>pe:</p></li>
+<li><p>ph: PHP, PHS</p></li>
+<li><p>pk: KAR</p></li>
+<li><p>pl: WSE</p></li>
+<li><p>pt: LIS</p></li>
+<li><p>qa: DOH</p></li>
+<li><p>ro: BVB</p></li>
+<li><p>ru: MCX</p></li>
+<li><p>sa: SAU</p></li>
+<li><p>se: STO</p></li>
+<li><p>sg: SES</p></li>
+<li><p>sr:</p></li>
+<li><p>th: SET</p></li>
+<li><p>tr: IST</p></li>
+<li><p>tw: TAI, TWO</p></li>
+<li><p>us: ASE, NAS, NCM, NGM, NMS, NYQ, OEM, OGM, OQB, PNK, WCB</p></li>
+<li><p>ve: CCS</p></li>
+<li><p>vn: VSE</p></li>
+<li><p>za: JNB</p></li>
 </ul>
 </td>
 </tr>
@@ -615,73 +673,6 @@ document.write(`
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span></dt>
 <dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="yfinance.FundQuery.valid_fields">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">valid_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span></em><a class="headerlink" href="#yfinance.FundQuery.valid_fields" title="Link to this definition">#</a></dt>
-<dd><p>Valid operands, grouped by category.</p>
-<div class="pst-scrollable-table-container"><table class="table" id="id3">
-<caption><span class="caption-text">Permitted Keys/Values</span><a class="headerlink" href="#id3" title="Link to this table">#</a></caption>
-<colgroup>
-<col style="width: 25.0%" />
-<col style="width: 75.0%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Key</p></th>
-<th class="head"><p>Values</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>eq_fields</p></td>
-<td><ul class="simple">
-<li><p>annualreturnnavy1categoryrank</p></li>
-<li><p>categoryname</p></li>
-<li><p>exchange</p></li>
-<li><p>initialinvestment</p></li>
-<li><p>performanceratingoverall</p></li>
-<li><p>riskratingoverall</p></li>
-</ul>
-</td>
-</tr>
-<tr class="row-odd"><td><p>price</p></td>
-<td><ul class="simple">
-<li><p>eodprice</p></li>
-<li><p>intradayprice</p></li>
-<li><p>intradaypricechange</p></li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="yfinance.FundQuery.valid_values">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">valid_values</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span></em><a class="headerlink" href="#yfinance.FundQuery.valid_values" title="Link to this definition">#</a></dt>
-<dd><p>Most operands take number values, but some have a restricted set of valid values.</p>
-<div class="pst-scrollable-table-container"><table class="table" id="id4">
-<caption><span class="caption-text">Permitted Keys/Values</span><a class="headerlink" href="#id4" title="Link to this table">#</a></caption>
-<colgroup>
-<col style="width: 25.0%" />
-<col style="width: 75.0%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Key</p></th>
-<th class="head"><p>Values</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>exchange</p></td>
-<td><ul class="simple">
-<li><p>us: NAS</p></li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</dd></dl>
 
 </dd></dl>
 
@@ -733,11 +724,7 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#yfinance.FundQuery"><code class="docutils literal notranslate"><span class="pre">FundQuery</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#yfinance.FundQuery.valid_fields"><code class="docutils literal notranslate"><span class="pre">FundQuery.valid_fields</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#yfinance.FundQuery.valid_values"><code class="docutils literal notranslate"><span class="pre">FundQuery.valid_values</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#yfinance.FundQuery"><code class="docutils literal notranslate"><span class="pre">FundQuery</span></code></a></li>
 </ul>
   </nav></div>
 
